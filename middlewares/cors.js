@@ -1,8 +1,6 @@
 const allowedCors = [
   'https://depacheko.nomoredomains.sbs',
   'http://depacheko.nomoredomains.sbs',
-  'https://depacheko.nomoredomains.sbs',
-  'http://depacheko.nomoredomains.sbs',
   'http://localhost:3000',
 ];
 

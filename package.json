@@ -7,7 +7,7 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "lint": "npx eslint .",
-    "deploy": "scp -r ./* pachekodaniel1@51.250.86.91:/home/pachekodaniel/diplom/movies-explorer-api"
+    "deploy": "scp -r ./* pachekodaniel1@51.250.86.91:/home/pachekodaniel1"
   },
   "repository": {
     "type": "git",

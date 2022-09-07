@@ -14,16 +14,16 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { PORT = 3000, NODE_ENV, MONGODB } = process.env;
 const app = express();
 
-mongoose.connect(NODE_ENV === 'production' ? MONGODB : 'mongodb://localhost:27017/bitfilmsdb', {
+mongoose.connect(NODE_ENV === 'production' ? MONGODB : 'mongodb://localhost:27017/moviesdb', {
   useNewUrlParser: true,
 });
 
+app.use(requestLogger);
+app.use(limiter);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use(requestLogger);
-app.use(limiter);
 app.use(cors);
 app.use(helmet());
 

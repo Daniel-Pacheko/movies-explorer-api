@@ -11,24 +11,23 @@ module.exports.createUser = (req, res, next) => {
   const { name, password, email } = req.body;
 
   bcrypt.hash(password, 10)
-    .then((hash) => {
-      User.create({
-        name, email, password: hash,
-      })
-        .then((user) => res.status(201).send({
-          name: user.name,
-          email: user.email,
-        }))
-        .catch((err) => {
-          if (err.name === 'ValidationError' || err.name === 'CastError') {
-            throw new BadRequestError('Переданы некорректные данные для создания пользователя');
-          }
-          if (err.name === 'MongoServerError' && err.code === 11000) {
-            throw new ConflictError('Пользователь с указанным email уже существует');
-          }
-        })
-        .catch(next);
-    });
+    .then((hash) => User.create({
+      name, email, password: hash,
+    }))
+    .then((user) => res.status(201).send({
+      name: user.name,
+      email: user.email,
+    }))
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        throw new BadRequestError('Переданы некорректные данные для создания пользователя');
+      }
+      if (err.code === 11000) {
+        throw new ConflictError('Пользователь с указанным email уже существует');
+      }
+      next(err);
+    })
+    .catch(next);
 };
 
 module.exports.login = (req, res, next) => {
@@ -56,17 +55,12 @@ module.exports.getUserMe = (req, res, next) => {
         throw new NotFoundError('Пользователь с указанным id не найден');
       }
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные');
-      }
-    })
     .catch(next);
 };
 
 module.exports.updeteUser = (req, res, next) => {
-  const { name } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name }, { new: true, runValidators: true })
+  const { name, email } = req.body;
+  User.findByIdAndUpdate(req.user._id, { name, email }, { new: true, runValidators: true })
     .then((user) => {
       if (user) {
         res.send(user);
@@ -78,6 +72,7 @@ module.exports.updeteUser = (req, res, next) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         throw new BadRequestError('Переданы некорректные данные');
       }
+      next(err);
     })
     .catch(next);
 };

@@ -44,6 +44,7 @@ module.exports.createMovie = (req, res, next) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError('Переданы некорректные данные');
       }
+      next(err);
     })
     .catch(next);
 };
@@ -57,7 +58,7 @@ module.exports.deleteMovie = (req, res, next) => {
       if (movie.owner.toString() !== req.user._id) {
         throw new ForbiddenError('Вы не можите удалить эту карточку');
       } else {
-        Movie.findByIdAndDelete(req.params.movieId)
+        return Movie.findByIdAndDelete(req.params.movieId)
           .then(() => {
             res.send({ message: 'Фильм удален' });
           });
