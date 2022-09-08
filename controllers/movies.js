@@ -4,7 +4,7 @@ const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
+  Movie.find({ owner: req.user._id })
     .then((card) => res.send(card))
     .catch(next);
 };
@@ -45,8 +45,7 @@ module.exports.createMovie = (req, res, next) => {
         throw new BadRequestError('Переданы некорректные данные');
       }
       next(err);
-    })
-    .catch(next);
+    });
 };
 
 module.exports.deleteMovie = (req, res, next) => {

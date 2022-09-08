@@ -19,15 +19,14 @@ module.exports.createUser = (req, res, next) => {
       email: user.email,
     }))
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         throw new BadRequestError('Переданы некорректные данные для создания пользователя');
       }
       if (err.code === 11000) {
         throw new ConflictError('Пользователь с указанным email уже существует');
       }
       next(err);
-    })
-    .catch(next);
+    });
 };
 
 module.exports.login = (req, res, next) => {
@@ -36,7 +35,7 @@ module.exports.login = (req, res, next) => {
   User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'secret-key', { expiresIn: '7d' });
-      res.cookie('jwt', token, { maxAge: 36000000, httpOnly: true, sameSite: true }).send({ token });
+      res.cookie('jwt', token, { maxAge: 36000000, httpOnly: true, sameSite: true }).send({ message: 'Вы вошли в систему' });
     })
     .catch(next);
 };
@@ -58,7 +57,7 @@ module.exports.getUserMe = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.updeteUser = (req, res, next) => {
+module.exports.updataUser = (req, res, next) => {
   const { name, email } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, email }, { new: true, runValidators: true })
     .then((user) => {
@@ -72,7 +71,9 @@ module.exports.updeteUser = (req, res, next) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         throw new BadRequestError('Переданы некорректные данные');
       }
+      if (err.code === 11000) {
+        throw new ConflictError('Пользователь с указанным email уже существует');
+      }
       next(err);
-    })
-    .catch(next);
+    });
 };
