@@ -19,14 +19,15 @@ module.exports.createUser = (req, res, next) => {
       email: user.email,
     }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         throw new BadRequestError('Переданы некорректные данные для создания пользователя');
       }
       if (err.code === 11000) {
         throw new ConflictError('Пользователь с указанным email уже существует');
       }
       next(err);
-    });
+    })
+    .catch(next);
 };
 
 module.exports.login = (req, res, next) => {
